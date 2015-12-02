@@ -9,8 +9,7 @@ namespace Restaurant.Tests
 	public class IngredientsTests
 	{
 		private Dish dish;
-		private Ingredient ingredient1;
-		private Ingredient ingredient2;
+		private Ingredient ingredient1, ingredient2;
 
 		[SetUp]
 		public void Initialize()
@@ -38,8 +37,7 @@ namespace Restaurant.Tests
 		[Test]
 		public void IngredientChanged()
 		{
-			var list = new List<Ingredient> (1);
-			list.Add (ingredient1);
+			var list = new List<Ingredient> {ingredient1};
 
 			dish.AddIngredient (ingredient2);
 			dish.ChangeIngredient (ingredient2, ingredient1);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Restaurant
 {
@@ -8,8 +9,8 @@ namespace Restaurant
 	{
 		public string Name { get; set; }
 		public List<Ingredient> Ingredients { get; set; }
-		public float Price { get; set; }
-		public float Time { get; set; }
+		public double Price { get; set; }
+		public double Time { get; set; }
 
 		public Dish ()
 		{

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Restaurant
 {
@@ -6,7 +7,7 @@ namespace Restaurant
 	{
 		public static void Main (string[] args)
 		{
-			Console.WriteLine ("Hello World!");
+			Console.ReadKey ();
 		}
 	}
 }

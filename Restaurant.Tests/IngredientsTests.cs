@@ -48,7 +48,7 @@ namespace Restaurant.Tests
 		[Test]
 		public void IngredientsPrinted()
 		{
-			var result = "-> Інгредієнт: Назва=sample1, Ціна=10]\n-> Інгредієнт: Назва=sample2, Ціна=15]\n";
+			var result = "-> Назва: sample1, Ціна: 10\n-> Назва: sample2, Ціна: 15\n";
 
 			dish.AddIngredient (ingredient1);
 			dish.AddIngredient (ingredient2);

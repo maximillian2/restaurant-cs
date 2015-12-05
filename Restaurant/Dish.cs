@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
+//using System.Text.RegularExpressions;
 
 namespace Restaurant
 {
@@ -44,6 +44,11 @@ namespace Restaurant
 			}
 
 			return builder.ToString ();
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("Страва: {0}\nІнгредієнти:\n{1}Ціна: {2}\nЧас приготування: {3}\n", Name, this.PrintIngredients(), Price, Time);
 		}
 	}
 }

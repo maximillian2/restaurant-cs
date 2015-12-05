@@ -15,7 +15,7 @@ namespace Restaurant
 			
 		public override string ToString ()
 		{
-			return string.Format ("-> Інгредієнт: Назва={0}, Ціна={1}]", Name, Price);
+			return string.Format ("-> Назва: {0}, Ціна: {1}", Name, Price);
 		}
 	}
 }	

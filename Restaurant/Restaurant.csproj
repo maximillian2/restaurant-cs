@@ -45,6 +45,7 @@
     <Compile Include="Ingredient.cs" />
     <Compile Include="Dish.cs" />
     <Compile Include="Order.cs" />
+    <Compile Include="Controller.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -12,16 +12,32 @@ namespace Restaurant
 		public double Price { get; set; }
 		public double Time { get; set; }
 
-		public Dish ()
+		private void Setup()
 		{
 			Price = 0;
 			Time = 0;
 			Ingredients = new List<Ingredient> ();
 		}
 
+		public Dish ()
+		{
+			Setup ();
+		}
+
+		public Dish(string name, List<Ingredient> ingredients, double price, double time)
+		{
+			Setup ();
+
+			Name = name;
+			Ingredients = ingredients;
+			Price = price;
+			Time = time;
+		}
+
 		public void AddIngredient(Ingredient ingredient)
 		{
 			Ingredients.Add (ingredient);
+			Price += ingredient.Price;
 		}
 
 		public void RemoveIngredient(Ingredient ingredient)
@@ -38,9 +54,12 @@ namespace Restaurant
 		public string PrintIngredients()
 		{
 			var builder = new StringBuilder ();
-			foreach (var i in Ingredients) 
+//			for (int i = 0; i < Ingredients.Count; i++) {
+//				builder.Append($"{i+1}. ").Append (Ingredients[i]).Append("\n");
+//			}
+			foreach (var ingredient in Ingredients) 
 			{
-				builder.Append (i).Append("\n");
+				builder.Append (ingredient).Append("\n");
 			}
 
 			return builder.ToString ();

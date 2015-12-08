@@ -38,6 +38,9 @@
     <Reference Include="Faker">
       <HintPath>..\packages\Faker.1.2\lib\Faker.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -51,5 +54,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="data.xml" />
   </ItemGroup>
 </Project>

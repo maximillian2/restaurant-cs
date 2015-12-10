@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Restaurant
 {
@@ -8,6 +9,7 @@ namespace Restaurant
 	{
 		private List<Order> orderList;
 		private List<Dish> predefinedDishes;
+		private List<Ingredient> predefinedIngredients;
 
 		public Order CurrentOrder { get; set; }
 
@@ -17,12 +19,19 @@ namespace Restaurant
 			// orderList should be populated here from data file, otherwise it's empty
 			orderList = new List<Order> ();
 			predefinedDishes = new List<Dish> ();
+			predefinedIngredients = new List<Ingredient> ();
 
 			// fill some predefined dishes
 			var sampledish1 = new Dish ("predefined1", new List<Ingredient> { new Ingredient ("sample", 10) }, 10, 15);
 			var sampledish2 = new Dish ("predefined2", new List<Ingredient> { new Ingredient ("sample", 15) }, 10, 15);
 			predefinedDishes.Add (sampledish1);
 			predefinedDishes.Add (sampledish2);
+
+			var predefined1 = new Ingredient ("predefined1", 10);
+			var predefined2 = new Ingredient ("predefined2", 15);
+
+			predefinedIngredients.Add (predefined1);
+			predefinedIngredients.Add (predefined2);
 
 			// getting some fake info to simulate 
 			var fakeOrder1 = new Order ();
@@ -74,17 +83,17 @@ namespace Restaurant
 				try {
 					bool isNumber = int.TryParse (input.ToString (), out parsed_input);
 					if (isNumber) {
-						Console.WriteLine ("Number is chosen");
 						// <= because parsed_input starts with 1, not 0
 						if (parsed_input > 0 && parsed_input <= orderList.Count) {
-							Console.WriteLine ("Valid number");
 							CurrentOrder = orderList [parsed_input - 1];
+							orderList.RemoveAt (parsed_input - 1);
 						} else {
 							throw new ArgumentOutOfRangeException ();	
 						}
 					} else {
 						if (input.ToString ().Equals ("c") || input.ToString ().Equals ("create")) {
 							CurrentOrder = CreateOrder ();
+							parsed_input = orderList.Count + 1;
 						} else {
 							throw new FormatException ();
 						}
@@ -100,33 +109,18 @@ namespace Restaurant
 					return 1;
 				}
 			}
-			return MenuWithOrder (CurrentOrder, parsed_input);
+			return OrderMenu (CurrentOrder, parsed_input);
 		}
 
 		private Order CreateOrder ()
 		{
-			Console.WriteLine ("Order creation...");
+			Console.WriteLine ("Створення замовлення...");
 			var order = new Order ();
-
-			Console.WriteLine ("We have some dishes in our menu: ");
-			DisplayPredefinedDishes();
-			Console.Write ("Choose dishes and enter numbers (separate with white space) or [m]ake your own: ");
-
-			var input = Console.ReadLine ().Split (' ');
-			IEnumerable<int> array;
-			if (input [0].Equals ("m") || input [0].Equals ("make")) {
-				// CreateDish();
-			} else {
-				array = input.Select (x => int.Parse(x)-1);
-				foreach (var i in array) {
-					Console.WriteLine (i);
-					order.AddDish (predefinedDishes [i]);
-				}
-			}
+			AddDishesTo (ref order);
 			return order;
 		}
 
-		private void DisplayPredefinedDishes()
+		private void DisplayPredefinedDishes ()
 		{
 			for (int i = 0; i < predefinedDishes.Count; i++) {
 				Console.WriteLine ($"{i+1}. {predefinedDishes[i]}\n");
@@ -140,78 +134,294 @@ namespace Restaurant
 			}
 		}
 
-		private int MenuWithOrder (Order order, int orderNumber)
+		private void AddDishesTo (ref Order order)
 		{
-			int input = 0;
+			Console.WriteLine ("Меню: ");
+			DisplayPredefinedDishes ();
+			Console.WriteLine ("Choose dishes and enter numbers (separate with white space) or [m]ake your own: ");
+			Console.Write ("~> ");
 
-			Console.Clear ();
-			Console.WriteLine ($"Working with order#{orderNumber}");
-			Console.WriteLine (CurrentOrder.ToString ());
-			Console.WriteLine ("Choose option:");
-			Console.WriteLine ("1. Delete order");
-			Console.WriteLine ("2. Edit dishes");
-			Console.WriteLine ("3. Set total cost (u wot)");
-			Console.WriteLine ("4. Set table number");
-			Console.WriteLine ("5. Finish order");
-			Console.Write ("$ ");
+			var input = Console.ReadLine ().Split (' ');
+			IEnumerable<int> array;
+			if (input [0].Equals ("m") || input [0].Equals ("make")) {
+				order.AddDish (CreateDish ());
+			} else {
+				array = input.Select (x => int.Parse (x) - 1);
+				foreach (var i in array) {
+					order.AddDish (predefinedDishes [i]);
+				}
+			}
+		}
 
-			try { 
-				input = int.Parse (Console.ReadLine ());
+		private Dish CreateDish ()
+		{
+			Console.Write ("Enter dish name: ");
+
+			var dishName = Console.ReadLine ();
+			var cookTime = 0.0;
+			var ingredientsList = new List<Ingredient> ();
+
+			// get ingredients here
+			DisplayPredefinedIngredients();
+			Console.WriteLine ("Choose ingredients to add or [m]ake new one (will be auto added): ");
+			Console.Write ("~> ");
+
+			var ingredients = Console.ReadLine ().Split (' ');
+			IEnumerable<int> ingredientsArray;
+			if (ingredients [0].Equals ("m") || ingredients [0].Equals ("make")) {
+				ingredientsList.Add (CreateIngredient(predefinedIngredients));
+//				CreateIngredient(
+			} else {
+				ingredientsArray = ingredients.Select (x => int.Parse (x) - 1);
+				foreach (var i in ingredientsArray) {
+					ingredientsList.Add (predefinedIngredients [i]);
+				}
+			}
+			// add some price to contain restaurant work in producing dishes
+
+			Console.Write ("Enter time to cook: ");
+			try {
+				cookTime = double.Parse (Console.ReadLine ());
+				if (cookTime < 0.1 /* fucking minumum in config */) {
+					throw new ArgumentException ("Cook time should be bigger.");
+				}
 			} catch (FormatException) {
 				Console.WriteLine ("Not digit entered.");
+			} catch (ArgumentException) {
 			}
 
-			try {
-				switch (input) {
-				case 1:
-					orderList.Remove (CurrentOrder);
-					Console.WriteLine ("Current order removed. Getting back to main menu.");
-					break;
-				case 2:
-					EditDishesInOrder (CurrentOrder);
-					break;
-				case 3:
-					Console.Write ("Enter preferrable cost (just number): ");
-					var newCost = float.Parse (Console.ReadLine ());
-					CurrentOrder.TotalCost = newCost;
-					break;
-				case 4:
-					Console.Write ("Enter new table number (1-50): ");
-					var tableNumber = int.Parse (Console.ReadLine ());
-					// put max Table Number in config
-					if (tableNumber > 0 && tableNumber < 51) {
-						CurrentOrder.TableNumber = tableNumber;
-					} else {
+			return new Dish (dishName, ingredientsList, /* put here minimum overprice from config */ 10, cookTime);
+		}
+
+		private int OrderMenu (Order order, int orderNumber)
+		{
+			int input = 0;
+			bool done = false;
+
+			while (!done) {
+				Console.Clear ();
+				Console.WriteLine ($"Working with order#{orderNumber}");
+				Console.WriteLine (CurrentOrder.ToString ());
+				Console.WriteLine ("Choose option:");
+				Console.WriteLine ("1. Delete order");
+				Console.WriteLine ("2. Edit dishes");
+				Console.WriteLine ("3. Set total cost (u wot)");
+				Console.WriteLine ("4. Set table number");
+				Console.WriteLine ("5. Finish order");
+				Console.Write ("~> ");
+
+				try { 
+					input = int.Parse (Console.ReadLine ());
+				} catch (FormatException) {
+					Console.WriteLine ("Not digit entered.");
+				}
+
+				try {
+					switch (input) {
+					case 1:
+						orderList.Remove (CurrentOrder);
+						Console.WriteLine ("Current order removed. Getting back to main menu.");
+						done = true;
+						break;
+					case 2:
+						EditOrderDishesMenu (CurrentOrder);
+						break;
+					case 3:
+						Console.Write ("Enter preferrable cost (just number): ");
+						var newCost = float.Parse (Console.ReadLine ());
+						CurrentOrder.TotalCost = newCost;
+						break;
+					case 4:
+						Console.Write ("Enter new table number (1-50): ");
+						var tableNumber = int.Parse (Console.ReadLine ());
+						// put max Table Number in config
+						if (tableNumber > 0 && tableNumber < 51) {
+							CurrentOrder.TableNumber = tableNumber;
+						} else {
+							throw new ArgumentOutOfRangeException ();
+						}
+						break;
+					case 5:
+						orderList.Add (CurrentOrder);
+						done = true;
+						break;
+					default:
 						throw new ArgumentOutOfRangeException ();
 					}
-					break;
-				case 5:
-					// it works fine when we add new orders here, but when it comes to update
-					// better to delete an example of order in orderList when assigning it to currentOrder
-					// and then save it here
-					orderList.Add(CurrentOrder);
-					break;
-				default:
-					throw new IndexOutOfRangeException ();
+				} catch (FormatException e) {
+					Console.WriteLine ("Not a number is used to set numeric value. {0}", e.Message);
+				} catch (ArgumentOutOfRangeException e) {
+					Console.WriteLine ("No such number on the list. {0}", e.Message);
 				}
-			} catch (FormatException e) {
-				Console.WriteLine ("Not a number is used to set numeric value. {0}", e.Message);
-			} catch (ArgumentOutOfRangeException e) {
-				Console.WriteLine ("No such number on the list. {0}", e.Message);
 			}
 			return 1;
 		}
 
-		private void EditDishesInOrder (Order order)
+		private void EditOrderDishesMenu (Order order)
 		{
-			if (order.Dishes.Count == 0) {
-				Console.WriteLine ("No dishes inside");
-			} else {
+			bool done = false;
+			while (!done) {
 				Console.WriteLine ("Dishes in order:\n");
 				Console.WriteLine (order.PrintDishes ());
+
+				Console.WriteLine ("1. Add dish");
+				Console.WriteLine ("2. Edit dish");
+				Console.WriteLine ("3. Remove dish");
+				Console.WriteLine ("4. Return");
+
+				Console.Write ("~> ");
+				try {
+					var input = int.Parse (Console.ReadLine ());
+
+					switch (input) {
+					case 1:
+						AddDishesTo (ref order);
+						break;
+					case 2:
+						EditSpecificDishMenu (ref order);
+						break;
+					case 3:
+						Console.Write ("Choose dishes and enter numbers (separate with white space): ");
+					// TODO: make parseMethod i.g. ParseStringToInt(string[] first, int[] second )
+						var dishesToRemove = Console.ReadLine ().Split (' ');
+						IEnumerable<int> arrayOfDishIndexes = dishesToRemove.Select (x => int.Parse (x) - 1);
+						foreach (var i in arrayOfDishIndexes) {
+							// TODO: put this logic into Order.RemoveDishById method (price deduction).
+							order.TotalCost -= order.Dishes.ElementAt (i).Price;
+							order.Dishes.RemoveAt (i);
+						}
+						Console.WriteLine ("Successfully removed!!1");
+						break;
+					case 4:
+						done = true;
+						break;
+					default:
+						throw new ArgumentOutOfRangeException ();
+					}
+				} catch (FormatException e) {
+					Console.WriteLine ("Not a number entered. {0}", e.Message);
+				} catch (ArgumentOutOfRangeException e) {
+					Console.WriteLine (e.Message);
+				}
+			}
+		}
+		// TODO: remove all ref's
+		private void EditSpecificDishMenu (ref Order order)
+		{
+			bool done = false;
+
+			Console.WriteLine (order.PrintDishes ());
+			Console.Write ("Choose dish to edit: ");
+			try {
+				var input = int.Parse (Console.ReadLine ()) - 1;
+				while (!done) {
+					if (input >= 0 && input < order.Dishes.Count) {
+						Console.WriteLine (order.Dishes.ElementAt (input));
+						Console.WriteLine ("1. Add dish ingredients");
+						Console.WriteLine ("2. Remove dish ingredients");
+						Console.WriteLine ("3. Change dish name");
+						Console.WriteLine ("4. Change dish price");
+						Console.WriteLine ("5. Change dish time to get cooked");
+						Console.WriteLine ("6. Return");
+
+						Console.Write ("~> "); 
+						switch (int.Parse (Console.ReadLine ())) {
+						case 1:
+							Console.WriteLine ("Some predefined ingredients: ");
+							DisplayPredefinedIngredients ();
+
+							Console.Write ("Choose ingredients to add (numbers separate with white space) or [m]ake to create new: ");
+							var ingredientInput = Console.ReadLine ().Split (' ');
+							IEnumerable<int> ingredientsArray;
+							if (ingredientInput [0].Equals ("m") || ingredientInput [0].Equals ("make")) {
+								order.Dishes[input].AddIngredient(CreateIngredient (predefinedIngredients));
+							} else {
+								ingredientsArray = ingredientInput.Select (x => int.Parse (x) - 1);
+								foreach (var i in ingredientsArray) {
+									// TODO: add new created ingredients to predefinedIngredients
+									order.Dishes [input].AddIngredient (predefinedIngredients [i]);
+									order.Dishes [input].Price += predefinedIngredients [i].Price;
+								}
+							}
+							break;
+						case 2:
+							Console.Write ("Choose ingredients to remove and enter numbers (separate with white space): ");
+							// TODO: make parseMethod i.g. ParseStringToInt(string[] first, int[] second )
+							var ingredientsToRemove = Console.ReadLine ().Split (' ');
+							IEnumerable<int> arrayOfIngredientsIndexes = ingredientsToRemove.Select (x => int.Parse (x) - 1);
+							foreach (var i in arrayOfIngredientsIndexes) {
+								// TODO: put this logic into Order.RemoveDishById method (price deduction).
+								// TODO: maybe put this logic to method
+								order.Dishes [input].Price -= order.Dishes [input].Ingredients [i].Price;
+								order.Dishes [input].RemoveIngredient (order.Dishes [input].Ingredients [i]);
+							}
+							Console.WriteLine ("Successfully removed!!1");
+							break;
+						case 3:
+							Console.Write ("Preferable dish name: ");
+							order.SetDishName (order.Dishes.ElementAt (input), Console.ReadLine ());
+							break;
+						case 4:
+							Console.Write ("Enter dish price: ");
+							var dishPrice = double.Parse (Console.ReadLine ());
+							order.SetDishPrice (order.Dishes.ElementAt (input), dishPrice);
+							break;
+						case 5:
+							Console.Write ("Time to get dish ready: ");
+							var dishTime = double.Parse (Console.ReadLine ());
+							order.SetDishTime (order.Dishes.ElementAt (input), dishTime);
+							Console.WriteLine ("Successfully changed time!\n");
+							break;
+						case 6:
+							done = true;
+							break;
+						default:
+							throw new ArgumentOutOfRangeException ();	
+						}
+					} else {
+						throw new ArgumentOutOfRangeException ();
+					}
+				}
+			} catch (FormatException) {
+				Console.WriteLine ("Not a number entered.");	
+			} catch (ArgumentOutOfRangeException) {
+				Console.WriteLine ("Thing was just caught in being out of range.");
+			} catch (ArgumentNullException) {
+				Console.WriteLine ("Seems like you triggered null exception.");
+			}
+		}
+
+		private Ingredient CreateIngredient (List<Ingredient> predefinedIngredients)
+		{
+			Console.Write ("Enter ingredient name: ");
+			var unparsedName = Console.ReadLine ();
+			string inputName = "";
+			double inputPrice = 0;
+
+			try {
+				// TODO: refactor this, сделать только если не проходит эксепшн
+				if (new Regex (@"[A-Za-z]").IsMatch (unparsedName)) {
+					inputName = unparsedName;
+				} else {
+					throw new FormatException ();
+				}
+				Console.Write ("Enter ingredient price: ");
+				inputPrice = double.Parse (Console.ReadLine ());
+			} catch (FormatException) {
+				Console.WriteLine ("Not digit entered.");
 			}
 
-			Console.WriteLine ("Would you like to add ");
+			var newIngredient = new Ingredient (inputName, inputPrice);
+		
+			predefinedIngredients.Add (newIngredient);
+			return newIngredient;
+		}
+
+		private void DisplayPredefinedIngredients ()
+		{
+			for (int i = 0; i < predefinedIngredients.Count; i++) {
+				Console.WriteLine ($"{i+1}. {predefinedIngredients[i]}\n");
+			}
 		}
 	}
 }

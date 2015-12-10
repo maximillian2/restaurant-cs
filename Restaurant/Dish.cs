@@ -54,13 +54,13 @@ namespace Restaurant
 		public string PrintIngredients()
 		{
 			var builder = new StringBuilder ();
-//			for (int i = 0; i < Ingredients.Count; i++) {
-//				builder.Append($"{i+1}. ").Append (Ingredients[i]).Append("\n");
-//			}
-			foreach (var ingredient in Ingredients) 
-			{
-				builder.Append (ingredient).Append("\n");
+			for (int i = 0; i < Ingredients.Count; i++) {
+				builder.Append($"\t{i+1}. ").Append (Ingredients[i]).Append("\n");
 			}
+//			foreach (var ingredient in Ingredients) 
+//			{
+//				builder.Append (ingredient).Append("\n");
+//			}
 
 			return builder.ToString ();
 		}

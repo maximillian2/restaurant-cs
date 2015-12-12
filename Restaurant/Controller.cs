@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Configuration;
 
 namespace Restaurant
 {
@@ -11,17 +12,30 @@ namespace Restaurant
 		private List<Dish> predefinedDishes;
 		private List<Ingredient> predefinedIngredients;
 
+		private double minimalCookTime;
+		private double dishMargin;
+		private int maximumTableNumber;
+
 		public Order CurrentOrder { get; set; }
 
 		public Controller ()
 		{
-			/* may be here'll be config file, whatever */ 
-			// orderList should be populated here from data file, otherwise it's empty
 			orderList = new List<Order> ();
 			predefinedDishes = new List<Dish> ();
 			predefinedIngredients = new List<Ingredient> ();
 
+			// CONFIG FILE VALUES
+			try {
+				minimalCookTime = Convert.ToDouble (ConfigurationManager.AppSettings ["minimalCookTime"]);
+				dishMargin = Convert.ToDouble (ConfigurationManager.AppSettings ["dishMargin"]);
+				maximumTableNumber = Convert.ToInt32 (ConfigurationManager.AppSettings ["maximumTableNumber"]);
+				/* deserialize predefined files here */
+			} catch (FormatException) {
+				Console.WriteLine ("Error with config parsing.");
+			}
+
 			// fill some predefined dishes
+			// TODO: to remove this
 			var sampledish1 = new Dish ("predefined1", new List<Ingredient> { new Ingredient ("sample", 10) }, 10, 15);
 			var sampledish2 = new Dish ("predefined2", new List<Ingredient> { new Ingredient ("sample", 15) }, 10, 15);
 			predefinedDishes.Add (sampledish1);
@@ -52,6 +66,8 @@ namespace Restaurant
 			orderList.Add (fakeOrder1);
 			orderList.Add (fakeOrder2);
 			orderList.Add (fakeOrder3);
+			// TODO: upto this
+
 
 			// always null so that user can choose with which he wants to work with 
 			CurrentOrder = null;
@@ -68,22 +84,26 @@ namespace Restaurant
 
 		private int ShowMainMenu ()
 		{
+			// store order number here
 			int parsed_input = 0;
 
-			Console.WriteLine ("Welcome! \ud83c\udf74"); // 🍴 emoji
+			Console.Clear ();
+			// nice ASCII label here
+			Console.WriteLine ("______          _                              _   \n| ___ \\        | |                            | |  \n| |_/ /___  ___| |_ __ _ _   _ _ __ __ _ _ __ | |_ \n|    // _ \\/ __| __/ _` | | | | '__/ _` | '_ \\| __|\n| |\\ \\  __/\\__ \\ || (_| | |_| | | | (_| | | | | |_ \n\\_| \\_\\___||___/\\__\\__,_|\\__,_|_|  \\__,_|_| |_|\\__|\n                                                   \n                                                   ");
 			if (orderList.Count == 0) {
-				Console.WriteLine ("No existing orders found. Creating new one...");
+				Console.WriteLine ("Немає замовлень. Створюємо...");
 				CurrentOrder = CreateOrder ();
 			} else {
-				Console.WriteLine ("Some orders exist already:");
+				Console.WriteLine ("Існуючі замовлення:");
 				DisplayOrders ();
-				Console.WriteLine ("Choose order number to work with or [c]reate new one: ");
+				Console.WriteLine ($"Виберіть номер замовлення або створіть нове (1-{orderList.Count}/+): ");
+				Console.Write ("~> ");
 
 				var input = Console.ReadLine ();
 				try {
 					bool isNumber = int.TryParse (input.ToString (), out parsed_input);
 					if (isNumber) {
-						// <= because parsed_input starts with 1, not 0
+						// less than or equal because parsed_input starts with 1, not 0
 						if (parsed_input > 0 && parsed_input <= orderList.Count) {
 							CurrentOrder = orderList [parsed_input - 1];
 							orderList.RemoveAt (parsed_input - 1);
@@ -91,21 +111,22 @@ namespace Restaurant
 							throw new ArgumentOutOfRangeException ();	
 						}
 					} else {
-						if (input.ToString ().Equals ("c") || input.ToString ().Equals ("create")) {
+						if (input.ToString ().Equals ("+")) {
 							CurrentOrder = CreateOrder ();
+							// new order has orderList elements + 1 value
 							parsed_input = orderList.Count + 1;
 						} else {
 							throw new FormatException ();
 						}
 					}
 				} catch (ArgumentOutOfRangeException) {
-					Console.WriteLine ("This order doesn't exist.");
+					Console.WriteLine ("Такого замовлення не існує.");
 					return 1;
 				} catch (FormatException) {
-					Console.WriteLine ("Got wrong input. Try again!");
+					Console.WriteLine ("Неправильні вхідні дані. Спробуйте ще раз!");
 					return 1;
 				} catch (Exception e) {
-					Console.WriteLine ($"Some other error happened: {e.Message}");
+					Console.WriteLine ($"Виникла помилка: {e.Message}");
 					return 1;
 				}
 			}
@@ -116,7 +137,7 @@ namespace Restaurant
 		{
 			Console.WriteLine ("Створення замовлення...");
 			var order = new Order ();
-			AddDishesTo (ref order);
+			AddDishesTo (order);
 			return order;
 		}
 
@@ -134,16 +155,16 @@ namespace Restaurant
 			}
 		}
 
-		private void AddDishesTo (ref Order order)
+		private void AddDishesTo (Order order)
 		{
 			Console.WriteLine ("Меню: ");
 			DisplayPredefinedDishes ();
-			Console.WriteLine ("Choose dishes and enter numbers (separate with white space) or [m]ake your own: ");
+			Console.WriteLine ("Виберіть страви (перелічуйте через одне пустий символ) або створіть нову (+): ");
 			Console.Write ("~> ");
 
 			var input = Console.ReadLine ().Split (' ');
 			IEnumerable<int> array;
-			if (input [0].Equals ("m") || input [0].Equals ("make")) {
+			if (input [0].Equals ("+")) {
 				order.AddDish (CreateDish ());
 			} else {
 				array = input.Select (x => int.Parse (x) - 1);
@@ -155,42 +176,40 @@ namespace Restaurant
 
 		private Dish CreateDish ()
 		{
-			Console.Write ("Enter dish name: ");
+			Console.Write ("Введіть назву страви: ");
 
 			var dishName = Console.ReadLine ();
 			var cookTime = 0.0;
 			var ingredientsList = new List<Ingredient> ();
 
-			// get ingredients here
-			DisplayPredefinedIngredients();
-			Console.WriteLine ("Choose ingredients to add or [m]ake new one (will be auto added): ");
+			DisplayPredefinedIngredients ();
+			Console.WriteLine ("Виберіть інгрідієнти (перелічуйте через один пустий символ) або створіть новий (+) (буде автоматично додано до замовлення): ");
 			Console.Write ("~> ");
 
 			var ingredients = Console.ReadLine ().Split (' ');
 			IEnumerable<int> ingredientsArray;
-			if (ingredients [0].Equals ("m") || ingredients [0].Equals ("make")) {
-				ingredientsList.Add (CreateIngredient(predefinedIngredients));
-//				CreateIngredient(
+			if (ingredients [0].Equals ("+")) {
+				ingredientsList.Add (CreateIngredient (predefinedIngredients));
 			} else {
 				ingredientsArray = ingredients.Select (x => int.Parse (x) - 1);
 				foreach (var i in ingredientsArray) {
 					ingredientsList.Add (predefinedIngredients [i]);
 				}
 			}
-			// add some price to contain restaurant work in producing dishes
 
-			Console.Write ("Enter time to cook: ");
+			Console.Write ("Введіть час приготування (в хв.): ");
 			try {
 				cookTime = double.Parse (Console.ReadLine ());
-				if (cookTime < 0.1 /* fucking minumum in config */) {
-					throw new ArgumentException ("Cook time should be bigger.");
+				if (cookTime < minimalCookTime) {
+					throw new ArgumentException ("Час приготування має бути більшим.");
 				}
 			} catch (FormatException) {
-				Console.WriteLine ("Not digit entered.");
-			} catch (ArgumentException) {
+				Console.WriteLine ("На вході отримано не число.");
+			} catch (ArgumentException e) {
+				Console.WriteLine (e.Message);
 			}
 
-			return new Dish (dishName, ingredientsList, /* put here minimum overprice from config */ 10, cookTime);
+			return new Dish (dishName, ingredientsList, dishMargin, cookTime);
 		}
 
 		private int OrderMenu (Order order, int orderNumber)
@@ -200,45 +219,48 @@ namespace Restaurant
 
 			while (!done) {
 				Console.Clear ();
-				Console.WriteLine ($"Working with order#{orderNumber}");
+				Console.WriteLine ($"Працюємо із замовленням №{orderNumber}");
 				Console.WriteLine (CurrentOrder.ToString ());
-				Console.WriteLine ("Choose option:");
-				Console.WriteLine ("1. Delete order");
-				Console.WriteLine ("2. Edit dishes");
-				Console.WriteLine ("3. Set total cost (u wot)");
-				Console.WriteLine ("4. Set table number");
-				Console.WriteLine ("5. Finish order");
+				Console.WriteLine ("Виберіть опцію:");
+				Console.WriteLine ("1. Видалити замовлення");
+				Console.WriteLine ("2. Редагувати замовлення");
+				Console.WriteLine ("3. Задати кінцеву ціну (???)");
+				Console.WriteLine ("4. задати номер столика");
+				Console.WriteLine ("5. Оформити замовлення");
 				Console.Write ("~> ");
 
 				try { 
 					input = int.Parse (Console.ReadLine ());
 				} catch (FormatException) {
-					Console.WriteLine ("Not digit entered.");
+					Console.WriteLine ("На вході отримано не число.");
 				}
 
 				try {
 					switch (input) {
 					case 1:
 						orderList.Remove (CurrentOrder);
-						Console.WriteLine ("Current order removed. Getting back to main menu.");
+						Console.WriteLine ("Поточне замовлення видалене. Повертаємось в головне меню");
 						done = true;
 						break;
 					case 2:
 						EditOrderDishesMenu (CurrentOrder);
 						break;
 					case 3:
-						Console.Write ("Enter preferrable cost (just number): ");
+						Console.Write ("Введіть прийнятне число (в регіональній валюті): ");
 						var newCost = float.Parse (Console.ReadLine ());
-						CurrentOrder.TotalCost = newCost;
+						if (newCost > 0) {
+							CurrentOrder.TotalCost = newCost;
+						} else {
+							throw new ArgumentException ("Сума не може бути від'ємною.");
+						}
 						break;
 					case 4:
-						Console.Write ("Enter new table number (1-50): ");
+						Console.Write ($"Виберіть номер столика (1-{maximumTableNumber}): ");
 						var tableNumber = int.Parse (Console.ReadLine ());
-						// put max Table Number in config
-						if (tableNumber > 0 && tableNumber < 51) {
+						if (tableNumber > 0 && tableNumber < maximumTableNumber) {
 							CurrentOrder.TableNumber = tableNumber;
 						} else {
-							throw new ArgumentOutOfRangeException ();
+							throw new ArgumentOutOfRangeException ($"Немає столика №{tableNumber}.");
 						}
 						break;
 					case 5:
@@ -246,12 +268,12 @@ namespace Restaurant
 						done = true;
 						break;
 					default:
-						throw new ArgumentOutOfRangeException ();
+						throw new ArgumentOutOfRangeException ("Немає такої опції.");
 					}
-				} catch (FormatException e) {
-					Console.WriteLine ("Not a number is used to set numeric value. {0}", e.Message);
+				} catch (FormatException) {
+					Console.WriteLine ("В числове поле не можна записати таке значення.");
 				} catch (ArgumentOutOfRangeException e) {
-					Console.WriteLine ("No such number on the list. {0}", e.Message);
+					Console.WriteLine (e.ParamName);
 				}
 			}
 			return 1;
@@ -261,13 +283,13 @@ namespace Restaurant
 		{
 			bool done = false;
 			while (!done) {
-				Console.WriteLine ("Dishes in order:\n");
+				Console.WriteLine ("Страви в замовленні:\n");
 				Console.WriteLine (order.PrintDishes ());
 
-				Console.WriteLine ("1. Add dish");
-				Console.WriteLine ("2. Edit dish");
-				Console.WriteLine ("3. Remove dish");
-				Console.WriteLine ("4. Return");
+				Console.WriteLine ("1. Додати страву");
+				Console.WriteLine ("2. Редагувати страву");
+				Console.WriteLine ("3. Видалити страву");
+				Console.WriteLine ("4. Повернутися");
 
 				Console.Write ("~> ");
 				try {
@@ -275,13 +297,13 @@ namespace Restaurant
 
 					switch (input) {
 					case 1:
-						AddDishesTo (ref order);
+						AddDishesTo (order);
 						break;
 					case 2:
-						EditSpecificDishMenu (ref order);
+						EditSpecificDishMenu (order);
 						break;
 					case 3:
-						Console.Write ("Choose dishes and enter numbers (separate with white space): ");
+						Console.Write ("Виберіть страви (розділяйте одним пустим символом): ");
 					// TODO: make parseMethod i.g. ParseStringToInt(string[] first, int[] second )
 						var dishesToRemove = Console.ReadLine ().Split (' ');
 						IEnumerable<int> arrayOfDishIndexes = dishesToRemove.Select (x => int.Parse (x) - 1);
@@ -290,51 +312,52 @@ namespace Restaurant
 							order.TotalCost -= order.Dishes.ElementAt (i).Price;
 							order.Dishes.RemoveAt (i);
 						}
-						Console.WriteLine ("Successfully removed!!1");
+						Console.WriteLine ("Видалення успішне.");
 						break;
 					case 4:
 						done = true;
 						break;
 					default:
-						throw new ArgumentOutOfRangeException ();
+						throw new ArgumentOutOfRangeException ("Немає такої опції.");
 					}
-				} catch (FormatException e) {
-					Console.WriteLine ("Not a number entered. {0}", e.Message);
+				} catch (FormatException) {
+					Console.WriteLine ("На вході отримано не число.");
 				} catch (ArgumentOutOfRangeException e) {
-					Console.WriteLine (e.Message);
+					Console.WriteLine (e.ParamName);
 				}
 			}
 		}
 		// TODO: remove all ref's
-		private void EditSpecificDishMenu (ref Order order)
+		private void EditSpecificDishMenu (Order order)
 		{
 			bool done = false;
 
 			Console.WriteLine (order.PrintDishes ());
-			Console.Write ("Choose dish to edit: ");
+			Console.Write ("Виберіть номер страви для редагування: ");
 			try {
 				var input = int.Parse (Console.ReadLine ()) - 1;
 				while (!done) {
 					if (input >= 0 && input < order.Dishes.Count) {
 						Console.WriteLine (order.Dishes.ElementAt (input));
-						Console.WriteLine ("1. Add dish ingredients");
-						Console.WriteLine ("2. Remove dish ingredients");
-						Console.WriteLine ("3. Change dish name");
-						Console.WriteLine ("4. Change dish price");
-						Console.WriteLine ("5. Change dish time to get cooked");
-						Console.WriteLine ("6. Return");
+						Console.WriteLine ("1. Додати інгрідієнтівAdd dish ingredients");
+						Console.WriteLine ("2. Видалити інгрідієнти");
+						Console.WriteLine ("3. Змінити назву страви");
+						Console.WriteLine ("4. Змінити ціну на страву");
+						Console.WriteLine ("5. Змінити час приготування страви");
+						Console.WriteLine ("6. Повернутися");
 
 						Console.Write ("~> "); 
 						switch (int.Parse (Console.ReadLine ())) {
 						case 1:
-							Console.WriteLine ("Some predefined ingredients: ");
+							Console.WriteLine ("Існуючі інгрідієнти: ");
 							DisplayPredefinedIngredients ();
 
-							Console.Write ("Choose ingredients to add (numbers separate with white space) or [m]ake to create new: ");
+							Console.Write ("Виберіть інгрідінти для додавання (розділяйте через один пустий символ) або створіть свій (+): ");
 							var ingredientInput = Console.ReadLine ().Split (' ');
+							// TODO: try here to collect wrong items written with spaces
 							IEnumerable<int> ingredientsArray;
-							if (ingredientInput [0].Equals ("m") || ingredientInput [0].Equals ("make")) {
-								order.Dishes[input].AddIngredient(CreateIngredient (predefinedIngredients));
+							if (ingredientInput [0].Equals ("+")) {
+								order.Dishes [input].AddIngredient (CreateIngredient (predefinedIngredients));
 							} else {
 								ingredientsArray = ingredientInput.Select (x => int.Parse (x) - 1);
 								foreach (var i in ingredientsArray) {
@@ -345,8 +368,9 @@ namespace Restaurant
 							}
 							break;
 						case 2:
-							Console.Write ("Choose ingredients to remove and enter numbers (separate with white space): ");
+							Console.Write ("Виберіть номера інгрідієнтів для видалення (розділяйте через один пустий символ): ");
 							// TODO: make parseMethod i.g. ParseStringToInt(string[] first, int[] second )
+							// TODO: validate split array
 							var ingredientsToRemove = Console.ReadLine ().Split (' ');
 							IEnumerable<int> arrayOfIngredientsIndexes = ingredientsToRemove.Select (x => int.Parse (x) - 1);
 							foreach (var i in arrayOfIngredientsIndexes) {
@@ -355,45 +379,45 @@ namespace Restaurant
 								order.Dishes [input].Price -= order.Dishes [input].Ingredients [i].Price;
 								order.Dishes [input].RemoveIngredient (order.Dishes [input].Ingredients [i]);
 							}
-							Console.WriteLine ("Successfully removed!!1");
+							Console.WriteLine ("Видалення успішне.");
 							break;
 						case 3:
-							Console.Write ("Preferable dish name: ");
+							Console.Write ("Бажане ім'я для страви: ");
 							order.SetDishName (order.Dishes.ElementAt (input), Console.ReadLine ());
 							break;
 						case 4:
-							Console.Write ("Enter dish price: ");
+							Console.Write ("Ціна на страву: ");
 							var dishPrice = double.Parse (Console.ReadLine ());
 							order.SetDishPrice (order.Dishes.ElementAt (input), dishPrice);
 							break;
 						case 5:
-							Console.Write ("Time to get dish ready: ");
+							Console.Write ("Час приготування: ");
 							var dishTime = double.Parse (Console.ReadLine ());
 							order.SetDishTime (order.Dishes.ElementAt (input), dishTime);
-							Console.WriteLine ("Successfully changed time!\n");
+							Console.WriteLine ("Успішне змінений час приготування!\n");
 							break;
 						case 6:
 							done = true;
 							break;
 						default:
-							throw new ArgumentOutOfRangeException ();	
+							throw new ArgumentOutOfRangeException ("Немає такої опції.");	
 						}
 					} else {
-						throw new ArgumentOutOfRangeException ();
+						throw new ArgumentOutOfRangeException ("Немає такої опції.");
 					}
 				}
 			} catch (FormatException) {
-				Console.WriteLine ("Not a number entered.");	
-			} catch (ArgumentOutOfRangeException) {
-				Console.WriteLine ("Thing was just caught in being out of range.");
+				Console.WriteLine ("На вході отримано не число.");	
+			} catch (ArgumentOutOfRangeException e) {
+				Console.WriteLine (e.ParamName);
 			} catch (ArgumentNullException) {
-				Console.WriteLine ("Seems like you triggered null exception.");
+				Console.WriteLine ("Отримано пустий параметр.");
 			}
 		}
 
 		private Ingredient CreateIngredient (List<Ingredient> predefinedIngredients)
 		{
-			Console.Write ("Enter ingredient name: ");
+			Console.Write ("Введіть назву інгрідієнта: ");
 			var unparsedName = Console.ReadLine ();
 			string inputName = "";
 			double inputPrice = 0;
@@ -405,10 +429,10 @@ namespace Restaurant
 				} else {
 					throw new FormatException ();
 				}
-				Console.Write ("Enter ingredient price: ");
+				Console.Write ("Введіть ціну інгрідієнта: ");
 				inputPrice = double.Parse (Console.ReadLine ());
 			} catch (FormatException) {
-				Console.WriteLine ("Not digit entered.");
+				Console.WriteLine ("На вході отримано не число.");
 			}
 
 			var newIngredient = new Ingredient (inputName, inputPrice);

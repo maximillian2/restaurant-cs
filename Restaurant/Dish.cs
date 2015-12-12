@@ -30,7 +30,12 @@ namespace Restaurant
 
 			Name = name;
 			Ingredients = ingredients;
-			Price = price;
+			foreach (var i in Ingredients) {
+				Price += i.Price;
+			}
+
+			Price *= price;
+
 			Time = time;
 		}
 

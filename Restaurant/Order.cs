@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq; // for ElementAt() method
 
 namespace Restaurant
 {
@@ -91,12 +92,12 @@ namespace Restaurant
 			for (int i = 0; i < Dishes.Count; i++) {
 				builder.Append($"{i+1}. ").Append (Dishes[i]).Append("\n");
 			}
-
-//			foreach (var dish in Dishes) {
-//				builder.Append (dish).Append ("\n");
-//			}
-
 			return builder.ToString ();
+		}
+		public void RemoveDishById(int id)
+		{
+			TotalCost -= Dishes.ElementAt (id).Price;
+			Dishes.RemoveAt (id);
 		}
 
 		public override string ToString ()

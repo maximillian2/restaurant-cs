@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
 
 namespace Restaurant
 {
@@ -10,7 +8,6 @@ namespace Restaurant
 		{
 			var restaurant = new Controller ();
 			restaurant.Run ();
-			Console.ReadKey ();
 		}
 	}
 }

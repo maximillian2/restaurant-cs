@@ -7,6 +7,12 @@ namespace Restaurant
 		public string Name { get; set; }
 		public double Price { get; set; }
 
+		public Ingredient()
+		{
+			Name = "";
+			Price = 0;
+		}
+
 		public Ingredient (string name, double price)
 		{
 			Name = name;

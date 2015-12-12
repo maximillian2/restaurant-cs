@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-//using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace Restaurant
 {
@@ -47,7 +47,14 @@ namespace Restaurant
 
 		public void RemoveIngredient(Ingredient ingredient)
 		{
+			Price -= ingredient.Price;
 			Ingredients.Remove (ingredient);
+		}
+
+		public void RemoveIngredientById(int id)
+		{
+			Price -= Ingredients.ElementAt (id).Price;
+			Ingredients.RemoveAt (id);
 		}
 
 		public void ChangeIngredient(Ingredient oldIngredient, Ingredient newIngredient)

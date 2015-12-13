@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.Configuration;
 using System.Xml.Serialization;
 using System.IO;
-using Polenter.Serialization;
 
 namespace Restaurant
 {
@@ -24,8 +23,7 @@ namespace Restaurant
 		private string predefinedDishesFile;
 		private string predefinedIngredientsFile;
 
-		// XML serializer object from Polenter
-		private SharpSerializer serializer;
+
 
 		public Order CurrentOrder { get; set; }
 
@@ -42,7 +40,6 @@ namespace Restaurant
 			orderList = new List<Order> ();
 			predefinedDishes = new List<Dish> ();
 			predefinedIngredients = new List<Ingredient> ();
-			serializer = new SharpSerializer ();
 			CurrentOrder = null;
 
 			// Reading configuration file values
@@ -56,9 +53,9 @@ namespace Restaurant
 				dishMargin = Convert.ToDouble (ConfigurationManager.AppSettings ["dishMargin"]);
 				maximumTableNumber = Convert.ToInt32 (ConfigurationManager.AppSettings ["maximumTableNumber"]);
 				// Runtime store collections
-				predefinedDishes = serializer.Deserialize (predefinedDishesFile) as List<Dish>;
-				predefinedIngredients = serializer.Deserialize (predefinedIngredientsFile) as List<Ingredient>;
-				orderList = serializer.Deserialize (ordersFile) as List<Order>;
+				predefinedDishes = FileManager.DeserializeCollectionFromFile<Dish>(predefinedDishesFile);
+				predefinedIngredients = FileManager.DeserializeCollectionFromFile<Ingredient>(predefinedIngredientsFile);
+				orderList = FileManager.DeserializeCollectionFromFile<Order>(ordersFile);
 			} catch (FormatException) {
 				Console.WriteLine ("Помилка при читанні конфігураційного файла.");
 			} catch (Exception e) {
@@ -79,9 +76,9 @@ namespace Restaurant
 			// After exiting the main loop all data from runtime store collections
 			// is being written to external XML data files 
 			Console.Write ("Збереження даних... ");
-			serializer.Serialize (orderList, ordersFile);
-			serializer.Serialize (predefinedDishes, predefinedDishesFile);
-			serializer.Serialize (predefinedIngredients, predefinedIngredientsFile);
+			FileManager.SerializeCollectionToFile (orderList, ordersFile);
+			FileManager.SerializeCollectionToFile (predefinedDishes, predefinedDishesFile);
+			FileManager.SerializeCollectionToFile (predefinedIngredients, predefinedIngredientsFile);
 			Console.WriteLine ("успішно!");
 		}
 
@@ -461,9 +458,6 @@ namespace Restaurant
 			double ingredientPrice = 0;
 
 			try {
-				// TODO: почини меня
-				// засунуть в цикл если неправильное значение
-				// русские и укр буквы плес
 				if (!(new Regex (@"[A-Za-z\p{IsCyrillic}]+").IsMatch (ingredientName))) {
 					throw new FormatException ();
 				}

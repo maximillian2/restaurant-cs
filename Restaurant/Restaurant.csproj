@@ -47,6 +47,7 @@
     <Compile Include="Dish.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Controller.cs" />
+    <Compile Include="FileManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

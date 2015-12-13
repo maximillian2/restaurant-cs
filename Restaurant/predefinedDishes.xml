@@ -1,6 +1,6 @@
-﻿<Collection name="Root" type="System.Collections.Generic.List`1[[Restaurant.Dish, Restaurant, Version=1.0.5824.41199, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+﻿<Collection name="Root" type="System.Collections.Generic.List`1[[Restaurant.Dish, Restaurant, Version=1.0.5826.656, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
   <Properties>
-    <Simple name="Capacity" value="4" />
+    <Simple name="Capacity" value="8" />
   </Properties>
   <Items>
     <Complex>
@@ -41,6 +41,120 @@
         </Collection>
         <Simple name="Price" value="150" />
         <Simple name="Time" value="15" />
+      </Properties>
+    </Complex>
+    <Complex>
+      <Properties>
+        <Simple name="Name" value="heh" />
+        <Collection name="Ingredients">
+          <Properties>
+            <Simple name="Capacity" value="4" />
+          </Properties>
+          <Items>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="predefined1" />
+                <Simple name="Price" value="10" />
+              </Properties>
+            </Complex>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="predefined2" />
+                <Simple name="Price" value="15" />
+              </Properties>
+            </Complex>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Бульон" />
+                <Simple name="Price" value="25" />
+              </Properties>
+            </Complex>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Картопля" />
+                <Simple name="Price" value="10" />
+              </Properties>
+            </Complex>
+          </Items>
+        </Collection>
+        <Simple name="Price" value="150" />
+        <Simple name="Time" value="10" />
+      </Properties>
+    </Complex>
+    <Complex>
+      <Properties>
+        <Simple name="Name" value="Borsch" />
+        <Collection name="Ingredients">
+          <Properties>
+            <Simple name="Capacity" value="8" />
+          </Properties>
+          <Items>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Буряк" />
+                <Simple name="Price" value="10" />
+              </Properties>
+            </Complex>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Бульон" />
+                <Simple name="Price" value="25" />
+              </Properties>
+            </Complex>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Картопля" />
+                <Simple name="Price" value="10" />
+              </Properties>
+            </Complex>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Морква" />
+                <Simple name="Price" value="7" />
+              </Properties>
+            </Complex>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Сало" />
+                <Simple name="Price" value="50" />
+              </Properties>
+            </Complex>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Хліб" />
+                <Simple name="Price" value="10" />
+              </Properties>
+            </Complex>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Яйце куряче (варене)" />
+                <Simple name="Price" value="15" />
+              </Properties>
+            </Complex>
+          </Items>
+        </Collection>
+        <Simple name="Price" value="317.5" />
+        <Simple name="Time" value="30" />
+      </Properties>
+    </Complex>
+    <Complex>
+      <Properties>
+        <Simple name="Name" value="не хочу" />
+        <Collection name="Ingredients">
+          <Properties>
+            <Simple name="Capacity" value="4" />
+          </Properties>
+          <Items>
+            <Complex>
+              <Properties>
+                <Simple name="Name" value="Хліб" />
+                <Simple name="Price" value="10" />
+              </Properties>
+            </Complex>
+          </Items>
+        </Collection>
+        <Simple name="Price" value="25" />
+        <Simple name="Time" value="1" />
       </Properties>
     </Complex>
   </Items>

@@ -6,6 +6,8 @@ namespace Restaurant
 	{
 		public static void Main (string[] args)
 		{
+			Console.Clear ();
+
 			var restaurant = new Controller ();
 			restaurant.Run ();
 		}

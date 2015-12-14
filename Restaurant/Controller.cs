@@ -12,9 +12,9 @@ namespace Restaurant
 	public class Controller
 	{
 		// Main store collections
-		private List<Order> orderList;
-		private List<Dish> predefinedDishes;
-		private List<Ingredient> predefinedIngredients;
+		private List<BusinessLogic.Order> orderList;
+		private List<BusinessLogic.Dish> predefinedDishes;
+		private List<BusinessLogic.Ingredient> predefinedIngredients;
 
 		// Configuration dependent values
 		private double minimalCookTime;
@@ -24,7 +24,7 @@ namespace Restaurant
 		private string predefinedDishesFile;
 		private string predefinedIngredientsFile;
 
-		public Order CurrentOrder { get; set; }
+		public BusinessLogic.Order CurrentOrder { get; set; }
 
 		// Method to print out promt with configurable foreground color
 		private void CommandPromtWithColor (ConsoleColor color)
@@ -36,9 +36,9 @@ namespace Restaurant
 
 		public Controller ()
 		{
-			orderList = new List<Order> ();
-			predefinedDishes = new List<Dish> ();
-			predefinedIngredients = new List<Ingredient> ();
+			orderList = new List<BusinessLogic.Order> ();
+			predefinedDishes = new List<BusinessLogic.Dish> ();
+			predefinedIngredients = new List<BusinessLogic.Ingredient> ();
 			CurrentOrder = null;
 
 			// Reading configuration file values
@@ -52,8 +52,8 @@ namespace Restaurant
 				dishMargin = Convert.ToDouble (ConfigurationManager.AppSettings ["dishMargin"]);
 				maximumTableNumber = Convert.ToInt32 (ConfigurationManager.AppSettings ["maximumTableNumber"]);
 				// Runtime store collections
-				predefinedDishes = FileManager.DeserializeCollectionFromFile<Dish>(predefinedDishesFile);
-				predefinedIngredients = FileManager.DeserializeCollectionFromFile<Ingredient>(predefinedIngredientsFile);
+				predefinedDishes = FileManager.DeserializeCollectionFromFile<BusinessLogic.Dish>(predefinedDishesFile);
+				predefinedIngredients = FileManager.DeserializeCollectionFromFile<BusinessLogic.Ingredient>(predefinedIngredientsFile);
 				orderList = FileManager.DeserializeCollectionFromFile<Order>(ordersFile);
 			} catch (FormatException) {
 				Console.WriteLine ("Помилка при читанні конфігураційного файла.");
@@ -133,10 +133,10 @@ namespace Restaurant
 			return OrderMenu (CurrentOrder, parsedInput);
 		}
 
-		private Order CreateOrder ()
+		private BusinessLogic.Order CreateOrder ()
 		{
 			Console.WriteLine ("Створення замовлення...");
-			var order = new Order ();
+			var order = new BusinessLogic.Order ();
 			AddDishesTo (order);
 			return order;
 		}
@@ -153,7 +153,7 @@ namespace Restaurant
 				Console.WriteLine ($"\ud83c\udf54 Замовлення #{i+1}:\n{orderList[i]}");
 		}
 
-		private void AddDishesTo (Order order)
+		private void AddDishesTo (BusinessLogic.Order order)
 		{
 			Console.WriteLine ("Меню: ");
 			DisplayPredefinedDishes ();
@@ -179,14 +179,14 @@ namespace Restaurant
 			} while(true);
 		}
 
-		private Dish CreateDish ()
+		private BusinessLogic.Dish CreateDish ()
 		{
 			Console.Write ("Введіть назву страви: ");
 
 			// Dish name can contain any characters
 			var dishName = Console.ReadLine ();
 			var cookTime = 0.0;
-			var ingredients = new List<Ingredient> ();
+			var ingredients = new List<BusinessLogic.Ingredient> ();
 
 			DisplayPredefinedIngredients ();
 			Console.WriteLine ("Виберіть інгрідієнти (перелічуйте через один пустий символ) або створіть новий (+) (буде автоматично додано до замовлення): ");
@@ -224,13 +224,13 @@ namespace Restaurant
 				break;
 			} while(true);
 
-			var dish = new Dish (dishName, ingredients, dishMargin, cookTime);
+			var dish = new BusinessLogic.Dish (dishName, ingredients, dishMargin, cookTime);
 			predefinedDishes.Add (dish);
 
 			return dish; 
 		}
 
-		private int OrderMenu (Order order, int orderNumber)
+		private int OrderMenu (BusinessLogic.Order order, int orderNumber)
 		{
 			int userOption = 0;
 			bool finished = false;
@@ -297,7 +297,7 @@ namespace Restaurant
 			return 1;
 		}
 
-		private void EditOrderDishesMenu (Order order)
+		private void EditOrderDishesMenu (BusinessLogic.Order order)
 		{
 			bool done = false;
 			while (!done) {
@@ -350,7 +350,7 @@ namespace Restaurant
 			}
 		}
 
-		private void EditSpecificDishMenuIn (Order currentOrder)
+		private void EditSpecificDishMenuIn (BusinessLogic.Order currentOrder)
 		{
 			bool done = false;
 
@@ -450,7 +450,7 @@ namespace Restaurant
 			}
 		}
 
-		private Ingredient CreateIngredientUsing (List<Ingredient> predefinedIngredients)
+		private BusinessLogic.Ingredient CreateIngredientUsing (List<BusinessLogic.Ingredient> predefinedIngredients)
 		{
 			Console.Write ("Введіть назву інгрідієнта: ");
 			string ingredientName = Console.ReadLine ();
@@ -466,7 +466,7 @@ namespace Restaurant
 				Console.WriteLine ("Назва інгредієнта містить недопустимі символи.");
 			}
 
-			var newIngredient = new Ingredient (ingredientName, ingredientPrice);
+			var newIngredient = new BusinessLogic.Ingredient (ingredientName, ingredientPrice);
 		
 			predefinedIngredients.Add (newIngredient);
 			return newIngredient;

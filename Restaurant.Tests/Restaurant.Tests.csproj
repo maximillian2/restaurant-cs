@@ -49,5 +49,9 @@
       <Project>{BA5AFF0D-69B3-4378-8337-467B93B49C33}</Project>
       <Name>Restaurant</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj">
+      <Project>{A8CF3123-276E-405A-AEA3-1D8F8A326B5E}</Project>
+      <Name>BusinessLogic</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

@@ -1,22 +1,23 @@
 ﻿using NUnit.Framework;
 using System;
-using Restaurant;
+//using Restaurant;
 using System.Collections.Generic;
+using BusinessLogic;
 
 namespace Restaurant.Tests
 {
 	[TestFixture ()]
 	public class IngredientsTests
 	{
-		private Dish dish;
-		private Ingredient ingredient1, ingredient2;
+		private BusinessLogic.Dish dish;
+		private BusinessLogic.Ingredient ingredient1, ingredient2;
 
 		[SetUp]
 		public void Initialize()
 		{
-			dish = new Dish ();
-			ingredient1 = new Ingredient ("sample1", 10);
-			ingredient2 = new Ingredient ("sample2", 15);
+			dish = new BusinessLogic.Dish ();
+			ingredient1 = new BusinessLogic.Ingredient ("sample1", 10);
+			ingredient2 = new BusinessLogic.Ingredient ("sample2", 15);
 		}
 
 		[Test]

@@ -428,7 +428,7 @@ namespace Restaurant
 						case 5:
 							Console.Write ("Час приготування: ");
 							var dishTime = double.Parse (Console.ReadLine ());
-							currentOrder.SetDishTime (currentOrder.Dishes.ElementAt (userOption), dishTime);
+							currentOrder.SetDishCookTime (currentOrder.Dishes.ElementAt (userOption), dishTime);
 							Console.WriteLine ("Успішне змінений час приготування!\n");
 							break;
 						case 6:

@@ -2,13 +2,14 @@
 
 namespace BusinessLogic
 {
-	public class Ingredient
+	public class Ingredient : IIngredient
 	{
 		public string Name { get; set; }
 		public double Price { get; set; }
 
 		public Ingredient()
 		{
+			// Need empty constructor for valid work of serializer
 			Name = "";
 			Price = 0;
 		}

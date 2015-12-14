@@ -34,6 +34,9 @@
     <Compile Include="Order.cs" />
     <Compile Include="Dish.cs" />
     <Compile Include="Ingredient.cs" />
+    <Compile Include="IIngredient.cs" />
+    <Compile Include="IDish.cs" />
+    <Compile Include="IOrder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
 </Project>

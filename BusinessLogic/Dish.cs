@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace BusinessLogic
 {
-	public class Dish
+	public class Dish : IDish
 	{
 		public string Name { get; set; }
 
@@ -48,31 +48,19 @@ namespace BusinessLogic
 			Price += ingredient.Price;
 		}
 
-		public void RemoveIngredient (Ingredient ingredient)
+		public string PrintIngredients ()
 		{
-			Price -= ingredient.Price;
-			Ingredients.Remove (ingredient);
+			var builder = new StringBuilder ();
+			for (int i = 0; i < Ingredients.Count; i++) {
+				builder.Append ($"\t{i+1}. ").Append (Ingredients[i]).Append("\n");
+			}
+			return builder.ToString ();
 		}
 
 		public void RemoveIngredientById (int id)
 		{
 			Price -= Ingredients.ElementAt (id).Price;
 			Ingredients.RemoveAt (id);
-		}
-
-		public void ChangeIngredient (Ingredient oldIngredient, Ingredient newIngredient)
-		{
-			this.RemoveIngredient (oldIngredient);
-			this.AddIngredient (newIngredient);
-		}
-
-		public string PrintIngredients ()
-		{
-			var builder = new StringBuilder ();
-			for (int i = 0; i < Ingredients.Count; i++) {
-				builder.Append ($"\t{i+1}. ").Append (Ingredients[i]) .Append("\n ");
-			}
-			return builder.ToString ();
 		}
 
 		public override string ToString ()

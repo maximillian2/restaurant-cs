@@ -43,9 +43,6 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Ingredient.cs" />
-    <Compile Include="Dish.cs" />
-    <Compile Include="Order.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="FileManager.cs" />
   </ItemGroup>
@@ -53,5 +50,11 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj">
+      <Project>{A8CF3123-276E-405A-AEA3-1D8F8A326B5E}</Project>
+      <Name>BusinessLogic</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

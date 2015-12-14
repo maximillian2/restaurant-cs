@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Configuration;
 using System.Xml.Serialization;
 using System.IO;
+using BusinessLogic;
 
 namespace Restaurant
 {
@@ -22,8 +23,6 @@ namespace Restaurant
 		private string ordersFile;
 		private string predefinedDishesFile;
 		private string predefinedIngredientsFile;
-
-
 
 		public Order CurrentOrder { get; set; }
 

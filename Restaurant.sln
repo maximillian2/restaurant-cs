@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restaurant", "Restaurant\Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restaurant.Tests", "Restaurant.Tests\Restaurant.Tests.csproj", "{14BA620A-95F5-49F7-A5F1-D1BFC9EF12BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogic", "BusinessLogic\BusinessLogic.csproj", "{A8CF3123-276E-405A-AEA3-1D8F8A326B5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -15,6 +17,10 @@ Global
 		{14BA620A-95F5-49F7-A5F1-D1BFC9EF12BB}.Debug|x86.Build.0 = Debug|Any CPU
 		{14BA620A-95F5-49F7-A5F1-D1BFC9EF12BB}.Release|x86.ActiveCfg = Release|Any CPU
 		{14BA620A-95F5-49F7-A5F1-D1BFC9EF12BB}.Release|x86.Build.0 = Release|Any CPU
+		{A8CF3123-276E-405A-AEA3-1D8F8A326B5E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A8CF3123-276E-405A-AEA3-1D8F8A326B5E}.Debug|x86.Build.0 = Debug|Any CPU
+		{A8CF3123-276E-405A-AEA3-1D8F8A326B5E}.Release|x86.ActiveCfg = Release|Any CPU
+		{A8CF3123-276E-405A-AEA3-1D8F8A326B5E}.Release|x86.Build.0 = Release|Any CPU
 		{BA5AFF0D-69B3-4378-8337-467B93B49C33}.Debug|x86.ActiveCfg = Debug|x86
 		{BA5AFF0D-69B3-4378-8337-467B93B49C33}.Debug|x86.Build.0 = Debug|x86
 		{BA5AFF0D-69B3-4378-8337-467B93B49C33}.Release|x86.ActiveCfg = Release|x86

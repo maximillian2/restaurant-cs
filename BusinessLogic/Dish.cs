@@ -57,6 +57,12 @@ namespace BusinessLogic
 			return builder.ToString ();
 		}
 
+		public void RemoveIngredient (Ingredient ingredient)
+		{
+			Price -= ingredient.Price;
+			Ingredients.Remove (ingredient);
+		}
+
 		public void RemoveIngredientById (int id)
 		{
 			Price -= Ingredients.ElementAt (id).Price;

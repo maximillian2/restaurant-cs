@@ -26,7 +26,10 @@ namespace Restaurant
 
 		public BusinessLogic.Order CurrentOrder { get; set; }
 
-		// Method to print out promt with configurable foreground color
+		/// <summary>
+		/// Method to print out promt with configurable foreground color
+		/// </summary>
+		/// <param name="color">Color.</param>
 		private void CommandPromtWithColor (ConsoleColor color)
 		{
 			Console.ForegroundColor = color;
@@ -34,6 +37,9 @@ namespace Restaurant
 			Console.ResetColor ();
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Restaurant.Controller"/> class.
+		/// </summary>
 		public Controller ()
 		{
 			orderList = new List<BusinessLogic.Order> ();
@@ -52,9 +58,9 @@ namespace Restaurant
 				dishMargin = Convert.ToDouble (ConfigurationManager.AppSettings ["dishMargin"]);
 				maximumTableNumber = Convert.ToInt32 (ConfigurationManager.AppSettings ["maximumTableNumber"]);
 				// Runtime store collections
-				predefinedDishes = FileManager.DeserializeCollectionFromFile<BusinessLogic.Dish>(predefinedDishesFile);
-				predefinedIngredients = FileManager.DeserializeCollectionFromFile<BusinessLogic.Ingredient>(predefinedIngredientsFile);
-				orderList = FileManager.DeserializeCollectionFromFile<Order>(ordersFile);
+				predefinedDishes = FileManager.DeserializeCollectionFromFile<BusinessLogic.Dish> (predefinedDishesFile);
+				predefinedIngredients = FileManager.DeserializeCollectionFromFile<BusinessLogic.Ingredient> (predefinedIngredientsFile);
+				orderList = FileManager.DeserializeCollectionFromFile<Order> (ordersFile);
 			} catch (FormatException) {
 				Console.WriteLine ("Помилка при читанні конфігураційного файла.");
 			} catch (Exception e) {
@@ -62,7 +68,9 @@ namespace Restaurant
 			}
 		}
 
-		// The only method available outside the class and meant to be called to start the program
+		/// <summary>
+		/// The only public method that starts the program
+		/// </summary>
 		public void Run ()
 		{			
 			// Nice "restaurant" ASCII label here
@@ -81,6 +89,10 @@ namespace Restaurant
 			Console.WriteLine ("успішно!");
 		}
 
+		/// <summary>
+		/// Shows the main menu.
+		/// </summary>
+		/// <returns>Status.</returns>
 		private int ShowMainMenu ()
 		{
 			// Store order number 
@@ -133,6 +145,10 @@ namespace Restaurant
 			return OrderMenu (CurrentOrder, parsedInput);
 		}
 
+		/// <summary>
+		/// Creates the order.
+		/// </summary>
+		/// <returns>Order.</returns>
 		private BusinessLogic.Order CreateOrder ()
 		{
 			Console.WriteLine ("Створення замовлення...");
@@ -141,18 +157,28 @@ namespace Restaurant
 			return order;
 		}
 
+		/// <summary>
+		/// Shows dishes that were saved from outside of the program or from another program session.
+		/// </summary>
 		private void DisplayPredefinedDishes ()
 		{
 			for (int i = 0; i < predefinedDishes.Count; i++)
 				Console.WriteLine ($"{i+1}. {predefinedDishes[i]}\n");
 		}
 
+		/// <summary>
+		/// Displays the orders with indexes.
+		/// </summary>
 		private void DisplayOrders ()
 		{
 			for (int i = 0; i < orderList.Count; i++)
 				Console.WriteLine ($"\ud83c\udf54 Замовлення #{i+1}:\n{orderList[i]}");
 		}
 
+		/// <summary>
+		/// Adds the dishes to selected order.
+		/// </summary>
+		/// <param name="order">Order.</param>
 		private void AddDishesTo (BusinessLogic.Order order)
 		{
 			Console.WriteLine ("Меню: ");
@@ -179,6 +205,10 @@ namespace Restaurant
 			} while(true);
 		}
 
+		/// <summary>
+		/// Creates the dish.
+		/// </summary>
+		/// <returns>The dish.</returns>
 		private BusinessLogic.Dish CreateDish ()
 		{
 			Console.Write ("Введіть назву страви: ");
@@ -230,6 +260,12 @@ namespace Restaurant
 			return dish; 
 		}
 
+		/// <summary>
+		/// Shows order menu with selected orderNumber.
+		/// </summary>
+		/// <returns>Status</returns>
+		/// <param name="order">Order.</param>
+		/// <param name="orderNumber">Order number.</param>
 		private int OrderMenu (BusinessLogic.Order order, int orderNumber)
 		{
 			int userOption = 0;
@@ -254,18 +290,18 @@ namespace Restaurant
 				try {
 					switch (userOption) {
 					case 1:
-						orderList.Remove (CurrentOrder);
+						orderList.Remove (order);
 						Console.WriteLine ("Поточне замовлення видалене. Повертаємось в головне меню");
 						finished = true;
 						break;
 					case 2:
-						EditOrderDishesMenu (CurrentOrder);
+						EditOrderDishesMenu (order);
 						break;
 					case 3:
 						Console.Write ("Введіть прийнятне число (в регіональній валюті): ");
 						var newOrderTotalCost = float.Parse (Console.ReadLine ());
 						if (newOrderTotalCost > 0) {
-							CurrentOrder.TotalCost = newOrderTotalCost;
+							order.TotalCost = newOrderTotalCost;
 						} else {
 							throw new ArgumentException ("Сума не може бути від'ємною.");
 						}
@@ -274,13 +310,13 @@ namespace Restaurant
 						Console.Write ($"Виберіть номер столика (1-{maximumTableNumber}): ");
 						var tableNumber = int.Parse (Console.ReadLine ());
 						if (tableNumber > 0 && tableNumber <= maximumTableNumber) {
-							CurrentOrder.TableNumber = tableNumber;
+							order.TableNumber = tableNumber;
 						} else {
 							throw new ArgumentOutOfRangeException ($"Немає столика №{tableNumber}.");
 						}
 						break;
 					case 5:
-						orderList.Add (CurrentOrder);
+						orderList.Add (order);
 						finished = true;
 						break;
 					default:
@@ -297,6 +333,10 @@ namespace Restaurant
 			return 1;
 		}
 
+		/// <summary>
+		/// Shows the edit dishes menu with selected order.
+		/// </summary>
+		/// <param name="order">Order.</param>
 		private void EditOrderDishesMenu (BusinessLogic.Order order)
 		{
 			bool done = false;
@@ -317,7 +357,7 @@ namespace Restaurant
 						AddDishesTo (order);
 						break;
 					case 2:
-						EditSpecificDishMenuIn (order);
+						EditSpecificDishMenuIn (ref order);
 						break;
 					case 3:
 						do {
@@ -350,7 +390,11 @@ namespace Restaurant
 			}
 		}
 
-		private void EditSpecificDishMenuIn (BusinessLogic.Order currentOrder)
+		/// <summary>
+		/// Shows the specific dish menu in order.
+		/// </summary>
+		/// <param name="currentOrder">Order.</param>
+		private void EditSpecificDishMenuIn (ref BusinessLogic.Order currentOrder)
 		{
 			bool done = false;
 
@@ -362,10 +406,11 @@ namespace Restaurant
 						Console.WriteLine (currentOrder.Dishes.ElementAt (userOption));
 						Console.WriteLine ("1. Додати інгрідієнтів");
 						Console.WriteLine ("2. Видалити інгрідієнти");
-						Console.WriteLine ("3. Змінити назву страви");
-						Console.WriteLine ("4. Змінити ціну на страву");
-						Console.WriteLine ("5. Змінити час приготування страви");
-						Console.WriteLine ("6. Повернутися");
+						Console.WriteLine ("3. Змінити інгредієнт");
+						Console.WriteLine ("4. Змінити назву страви");
+						Console.WriteLine ("5. Змінити ціну на страву");
+						Console.WriteLine ("6. Змінити час приготування страви");
+						Console.WriteLine ("7. Повернутися");
 						CommandPromtWithColor (ConsoleColor.Cyan);
 
 						switch (int.Parse (Console.ReadLine ())) {
@@ -409,11 +454,40 @@ namespace Restaurant
 								break;
 							} while (true);
 							break;
+
 						case 3:
+							Console.WriteLine (currentOrder.Dishes.ElementAt (userOption).PrintIngredients ());
+							Console.Write ("Номер інгредієнта для зміни: ");
+
+							try {
+								var ingredientToChange = currentOrder.Dishes.ElementAt (userOption).Ingredients.ElementAt (int.Parse (Console.ReadLine ()) - 1);
+							
+								predefinedIngredients.Remove (ingredientToChange);
+								currentOrder.Dishes.ElementAt (userOption).RemoveIngredient (ingredientToChange);
+
+								Console.Write ("Нове ім'я: ");
+								var newIngredientName = Console.ReadLine ();
+								Console.Write ("Нова ціна: ");
+								var newIngredientPrice = double.Parse (Console.ReadLine ());
+
+								var newIngredient = new BusinessLogic.Ingredient (newIngredientName, newIngredientPrice);
+
+								predefinedIngredients.Add (newIngredient);
+								currentOrder.Dishes.ElementAt (userOption).AddIngredient (newIngredient);
+
+								Console.WriteLine ("Інгредієнт успішно змінено!");
+							} catch (FormatException) {
+								Console.WriteLine ("Невірний номер інгредієнта. Спробуйте ще раз!");
+							} catch (Exception) {
+								Console.WriteLine ("Помилка при зміні інгрідієнта.");
+								continue;
+							}
+							break;
+						case 4:
 							Console.Write ("Бажане ім'я для страви: ");
 							currentOrder.SetDishName (currentOrder.Dishes.ElementAt (userOption), Console.ReadLine ());
 							break;
-						case 4:
+						case 5:
 							do {
 								Console.Write ("Ціна на страву: ");
 								try {
@@ -425,31 +499,37 @@ namespace Restaurant
 								break;
 							} while(true);
 							break;
-						case 5:
+						case 6:
 							Console.Write ("Час приготування: ");
 							var dishTime = double.Parse (Console.ReadLine ());
 							currentOrder.SetDishCookTime (currentOrder.Dishes.ElementAt (userOption), dishTime);
 							Console.WriteLine ("Успішне змінений час приготування!\n");
 							break;
-						case 6:
+						case 7:
 							done = true;
 							break;
 						default:
 							throw new ArgumentOutOfRangeException ("Немає такої опції.");	
 						}
+						currentOrder.UpdateTotalCost();
 					} else {
 						throw new ArgumentOutOfRangeException ("Немає такої опції.");
 					}
 				}
 			} catch (FormatException) {
 				Console.WriteLine ("На вході отримано не число.");	
-			} catch (ArgumentOutOfRangeException e) {
-				Console.WriteLine (e.ParamName);
+			} catch (ArgumentOutOfRangeException) {
+				Console.WriteLine ("Вихід за межі діапазону.");
 			} catch (ArgumentNullException) {
 				Console.WriteLine ("Отримано пустий параметр.");
 			}
 		}
 
+		/// <summary>
+		/// Creates the ingredient from collection.
+		/// </summary>
+		/// <returns>Ingredient.</returns>
+		/// <param name="predefinedIngredients">Ingredient collection.</param>
 		private BusinessLogic.Ingredient CreateIngredientUsing (List<BusinessLogic.Ingredient> predefinedIngredients)
 		{
 			Console.Write ("Введіть назву інгрідієнта: ");
@@ -472,6 +552,9 @@ namespace Restaurant
 			return newIngredient;
 		}
 
+		/// <summary>
+		/// Displays the predefined ingredients.
+		/// </summary>
 		private void DisplayPredefinedIngredients ()
 		{
 			for (int i = 0; i < predefinedIngredients.Count; i++) {

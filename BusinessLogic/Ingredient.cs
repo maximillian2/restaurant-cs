@@ -9,7 +9,7 @@ namespace BusinessLogic
 
 		public Ingredient()
 		{
-			// Need empty constructor for valid work of serializer
+			// Need empty constructor for valid serializer work
 			Name = "";
 			Price = 0;
 		}

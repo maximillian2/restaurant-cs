@@ -61,6 +61,14 @@ namespace BusinessLogic
 		{
 			return string.Format ("Загальна вартість: {0}\nНомер столика: {1}\n", TotalCost, TableNumber);
 		}
+
+		public void UpdateTotalCost()
+		{
+			TotalCost = 0;
+			foreach (var d in Dishes) {
+				TotalCost += d.Price;
+			}
+		}
 	}
 }
 

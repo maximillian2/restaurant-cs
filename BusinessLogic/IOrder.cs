@@ -9,7 +9,7 @@ namespace BusinessLogic
 
 		double TotalCost { set; }
 
-		double TableNumber { set; }
+		int TableNumber { set; }
 
 		void AddDish (Dish dish);
 

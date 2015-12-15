@@ -36,20 +36,19 @@ namespace Restaurant.Tests
 		}
 
 		[Test]
-		public void IngredientChanged()
+		public void IngredientRemovedById()
 		{
-			var list = new List<Ingredient> {ingredient1};
-
+			dish.AddIngredient (ingredient1);
 			dish.AddIngredient (ingredient2);
-			dish.ChangeIngredient (ingredient2, ingredient1);
 
-			Assert.AreEqual (list, dish.Ingredients);
+			dish.RemoveIngredientById (0);
+			Assert.That (dish.Ingredients.Count == 1);
 		}
 
 		[Test]
 		public void IngredientsPrinted()
 		{
-			var result = "-> Назва: sample1, Ціна: 10\n-> Назва: sample2, Ціна: 15\n";
+			var result = "\t1. sample1 (10)\n\t2. sample2 (15)\n";
 
 			dish.AddIngredient (ingredient1);
 			dish.AddIngredient (ingredient2);

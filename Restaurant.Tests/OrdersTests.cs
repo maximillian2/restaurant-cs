@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
-//using Restaurant;
 using BusinessLogic;
+using System.Collections.Generic;
 
 namespace Restaurant.Tests
 {
@@ -29,54 +29,62 @@ namespace Restaurant.Tests
 		}
 
 		[Test]
-		public void DishRemoved()
+		public void DishNameSet()
 		{
 			var dish1 = new BusinessLogic.Dish ();
-			dish1.AddIngredient (new BusinessLogic.Ingredient ("Carrot", 10));
+			var dishName = "sample_name";
 
 			order.AddDish (dish1);
-			order.RemoveDish (dish1);
+			order.SetDishName (dish1, dishName);
+
+			Assert.AreSame (order.Dishes[0].Name, dishName);
+		}
+
+		[Test]
+		public void DishPriceSet()
+		{
+			var dish1 = new BusinessLogic.Dish ();
+			var dishPrice = 10.4;
+
+			order.AddDish (dish1);
+			order.SetDishPrice (dish1, dishPrice);
+			Assert.AreEqual (dishPrice, order.Dishes[0].Price);
+		}
+
+		[Test]
+		public void DishCookTimeSet()
+		{
+			var dish1 = new BusinessLogic.Dish ();
+			var dishCookTime = 5.25;
+
+			order.AddDish (dish1);
+			order.SetDishCookTime (dish1, dishCookTime);
+
+			Assert.AreEqual (dishCookTime, order.Dishes [0].Time);
+		}
+
+		[Test]
+		public void DishRemovedById()
+		{
+			var dish1 = new BusinessLogic.Dish ();
+			var id = 0;
+
+			order.AddDish (dish1);
+			order.RemoveDishById (id);
 
 			Assert.That (order.Dishes.Count == 0);
 		}
 
 		[Test]
-		public void DishNameChanged()
+		public void TotalCostUpdated()
 		{
-			var dish1 = new BusinessLogic.Dish ();
-			dish1.Name = "Borsch";
-			order.ChangeDishName (dish1, "Vareniki");
+			var dish1 = new BusinessLogic.Dish ("sample", new List<Ingredient> { new Ingredient("1", 10), new Ingredient("2", 10) }, 4, 10);
+			order.TotalCost = 0;
 
-			Assert.AreEqual (order.GetDishName(dish1), "Vareniki");
-		}
-
-		[Test]
-		public void DishPriceChanged()
-		{
-			var dish1 = new BusinessLogic.Dish { Price = 23.5 };
-			order.ChangeDishPrice (dish1, 35.25);
-			Assert.AreEqual (order.GetDishPrice(dish1), 35.25);
-		}
-
-		[Test]
-		public void DishTimeChanged()
-		{
-			var dish1 = new BusinessLogic.Dish { Time = 10.5 };
-			order.ChangeDishTime (dish1, 18.25);
-			Assert.AreEqual (order.GetDishTime(dish1), 18.25);
-		}
-
-		[Test]
-		public void DishInfoPrinted()
-		{
-			var dishInfo = "Страва: salad\nІнгредієнти:\n-> Назва: Carrot, Ціна: 10\n-> Назва: Potato, Ціна: 20\nЦіна: 10\nЧас приготування: 5\n";
-
-			var dish1 = new BusinessLogic.Dish { Name = "salad", Price = 10, Time = 5 };
-			dish1.AddIngredient (new BusinessLogic.Ingredient("Carrot", 10));
-			dish1.AddIngredient (new BusinessLogic.Ingredient("Potato", 20));
 			order.AddDish (dish1);
+			order.UpdateTotalCost ();
 
-			Assert.AreEqual(order.GetDishInfo (dish1), dishInfo);
+			Assert.AreEqual (order.TotalCost, dish1.Price);
 		}
 	}
 }

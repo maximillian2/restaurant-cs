@@ -11,7 +11,7 @@ namespace BusinessLogic
 
 		public double TotalCost { get; set; }
 
-		public double TableNumber { get; set; }
+		public int TableNumber { get; set; }
 
 		public Order ()
 		{

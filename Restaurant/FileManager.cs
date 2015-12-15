@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Polenter.Serialization;
 using System.Collections.Generic;
 
@@ -10,9 +11,13 @@ namespace Restaurant
 		{
 			new SharpSerializer ().Serialize (collection, fileName);
 		}
-
+			
 		public static List<T> DeserializeCollectionFromFile<T> (string fileName)
 		{
+			if (!File.Exists (fileName)) {
+				File.Create (fileName);
+			}
+
 			return new SharpSerializer ().Deserialize (fileName) as List<T>;
 		}
 	}

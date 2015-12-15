@@ -63,8 +63,9 @@ namespace Restaurant
 				orderList = FileManager.DeserializeCollectionFromFile<Order> (ordersFile);
 			} catch (FormatException) {
 				Console.WriteLine ("Помилка при читанні конфігураційного файла.");
-			} catch (Exception e) {
-				Console.WriteLine ("{0} -> {1}", e.Message, e.InnerException.Message);
+			} catch (Exception) {
+				Console.WriteLine ("Конфігураційні файли створені.");
+				//Console.WriteLine ("{0} -> {1}", e.Message, e.InnerException.Message);
 			}
 		}
 

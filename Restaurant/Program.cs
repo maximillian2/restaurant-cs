@@ -7,8 +7,9 @@ namespace Restaurant
 		public static void Main (string[] args)
 		{
 			Console.Clear ();
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-			var restaurant = new Controller ();
+            var restaurant = new Controller ();
 			restaurant.Run ();
 		}
 	}
